@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+jspm_packages/
+.pnp*
+
+# Environment & Secrets
+.env*
+
+# Logs & Debug
+logs
+*.log
+*debug.log*
+
+# Build & Coverage
+dist/
+build/
+coverage/
+.nyc_output/
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,29 @@
+{
+  "name": "04--social-media-app-backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Azkaazeem/SOCIAL_MEDIA_APP-BACKEND-#readme",
+  "bugs": {
+    "url": "https://github.com/Azkaazeem/SOCIAL_MEDIA_APP-BACKEND-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azkaazeem/SOCIAL_MEDIA_APP-BACKEND-.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.9.1",
+    "morgan": "^1.11.0",
+    "nodemon": "^3.1.14"
+  }
+}
