@@ -11,12 +11,18 @@ dns.setServers(['8.8.8.8', '1.1.1.1'])
 
 dotenv.config();
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((error) => console.log(error));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    app.listen(8800, () => {
+      console.log("Database connected");
+      console.log("Backend server is running!");
+    });
+  })
+  .catch((error) => {
+    console.error("Database connection failed:", error.message);
+  });
 
-// middleware
+// middleware 
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
@@ -24,6 +30,6 @@ app.use(morgan("common"));
 app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);
 
-app.listen(8800 , () => {                 
-    console.log("Backend server is running!");
-}) 
+// app.listen(8800 , () => {                 
+//     console.log("Backend server is running!");
+// }) 
