@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
+// const cors = require("cors");
 
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '1.1.1.1'])
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGODB_URI)
   });
 
 // middleware 
+// app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));

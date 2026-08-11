@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 // CREATE POST
 router.post("/" , async (req, res) => {
@@ -69,16 +70,27 @@ router.get("/:id" , async (req, res) => {
 })
 
 // GET TIMELINE POSTS
-router.get("/timeline/all" , async (req , res) => {
+router.get("/timeline/:userId" , async (req , res) => {
     try {
-        const currentUser = await User.findById(req.body.userId);
+        const currentUser = await User.findById(req.params.userId);
         const userPost = await Post.find({ userId: currentUser._id });
         const friendPosts = await Promise.all(
             currentUser.followings.map((friendId) => {
                 return Post.find({ userId: friendId });
             })
         );
-        res.json(userPost.concat(...friendsPosts));
+        res.status(200).json(userPost.concat(...friendPosts));
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+})
+
+// GET USER'S ALL POSTS
+router.get("/profile/:username" , async (req , res) => {
+    try {
+        const user = await User.findOne({username: req.params.username });
+        const posts = await Post.find({ userId: user._id });
+        res.status(200).json(posts);
     } catch (err) {
         res.status(500).json({error: err.message});
     }
