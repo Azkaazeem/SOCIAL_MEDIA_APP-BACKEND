@@ -32,11 +32,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // middleware 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://social-media-app-frontend-sand.vercel.app"
-  ]
+  origin: "*"
 }));
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: false }));
