@@ -21,3 +21,6 @@ coverage/
 .DS_Store
 .vscode/
 .idea/
+
+# post images
+backend/public/images/
