@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
-// const cors = require("cors");
+const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 
@@ -31,7 +31,13 @@ mongoose.connect(process.env.MONGODB_URI)
   app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 // middleware 
-// app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://social-media-app-frontend-sand.vercel.app"
+  ]
+}));
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan("common"));
