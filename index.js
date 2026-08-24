@@ -42,22 +42,30 @@ app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan("common"));
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/images");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
+  api_key: process.env.CLOUDINARY_API_KEY.trim(),
+  api_secret: process.env.CLOUDINARY_API_SECRET.trim()
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "social-media-app",
+    resource_type: "auto",
   },
-  filename: (req, file, cb) => {
-    cb(null, req.body.name);
-  }
 });
 
 const upload = multer({ storage });
 app.post("/api/upload" , upload.single("file"), (req, res) => {
   try {
-    return res.status(200).json("File uploaded Successfully");
+    return res.status(200).json({ url: req.file.path });
   } catch (err) {
     console.log(err);
-    
+    res.status(500).json(err);
   }
 });
 
