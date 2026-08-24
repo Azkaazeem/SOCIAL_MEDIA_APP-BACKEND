@@ -33,7 +33,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // middleware 
 // app.use(cors());
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan("common"));
 
 const storage = multer.diskStorage({
@@ -41,11 +41,11 @@ const storage = multer.diskStorage({
     cb(null, "public/images");
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    cb(null, req.body.name);
   }
 });
 
-const upload = multer(storage);
+const upload = multer({ storage });
 app.post("/api/upload" , upload.single("file"), (req, res) => {
   try {
     return res.status(200).json("File uploaded Successfully");
