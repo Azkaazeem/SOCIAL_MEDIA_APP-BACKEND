@@ -80,7 +80,7 @@ router.get("/all", async (req, res) => {
     }
 });
 
-// GET USER
+// GET USER FRIENDS (Legacy - used for Home Rightbar)
 router.get("/friends/:userId", async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -91,11 +91,45 @@ router.get("/friends/:userId", async (req, res) => {
         );
         let friendList = [];
         friends.map((friend) => {
-            const {_id, username, profilePicture, dob } = friend;
-            friendList.push({ _id, username, profilePicture, dob });
+            if(friend) {
+                const {_id, username, profilePicture, dob } = friend;
+                friendList.push({ _id, username, profilePicture, dob });
+            }
         })
         res.status(200).json(friendList)
     } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+// GET USER CONNECTIONS (Followers, Followings, Mutual Friends)
+router.get("/connections/:userId", async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) return res.status(404).json("User not found");
+
+        const followersIds = user.followers || [];
+        const followingsIds = user.followings || [];
+
+        // Mutual Friends (in both)
+        const mutualIds = followersIds.filter(id => followingsIds.includes(id));
+        // Strict Followers (in followers but not in followings)
+        const strictFollowersIds = followersIds.filter(id => !followingsIds.includes(id));
+        // Strict Followings (in followings but not in followers)
+        const strictFollowingsIds = followingsIds.filter(id => !followersIds.includes(id));
+
+        const getBasicInfo = async (ids) => {
+            const users = await Promise.all(ids.map(id => User.findById(id)));
+            return users.filter(u => u !== null).map(u => ({ _id: u._id, username: u.username, profilePicture: u.profilePicture }));
+        };
+
+        const mutuals = await getBasicInfo(mutualIds);
+        const followers = await getBasicInfo(strictFollowersIds);
+        const followings = await getBasicInfo(strictFollowingsIds);
+
+        res.status(200).json({ mutuals, followers, followings });
+    } catch (err) {
+        console.error(err);
         res.status(500).json(err);
     }
 });

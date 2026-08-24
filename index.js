@@ -44,7 +44,8 @@ const cloudinary = require("cloudinary").v2;
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
   api_key: process.env.CLOUDINARY_API_KEY.trim(),
-  api_secret: process.env.CLOUDINARY_API_SECRET.trim()
+  api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+  timeout: 600000 // 10 minutes timeout for large video uploads
 });
 
 const storage = new CloudinaryStorage({
