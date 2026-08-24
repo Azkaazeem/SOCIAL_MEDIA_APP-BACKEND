@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // middleware 
 app.use(cors({
-  origin: "*"
+  origin: "https://social-media-app-frontend-owa11ge2w-azka-azeems-projects.vercel.app",
 }));
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: false }));
