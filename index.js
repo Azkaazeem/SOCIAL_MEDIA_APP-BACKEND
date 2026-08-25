@@ -62,7 +62,6 @@ app.use(morgan("common"));
 
 // Static files for images
 app.use("/images", express.static(path.join(__dirname, "public/images")));
-
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 
