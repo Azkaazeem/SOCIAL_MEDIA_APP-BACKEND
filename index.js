@@ -4,73 +4,98 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const cors = require("cors");
+const path = require("path");
+const multer = require("multer");
+
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
-const cors = require("cors");
-const multer = require("multer");
-const path = require("path");
 
-const dns = require('dns');
-const { log } = require("console");
+const dns = require("dns")
 dns.setServers(['8.8.8.8', '1.1.1.1'])
+dotenv.config();
+
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    app.listen(8800, () => {
-      console.log("Database connected");
-      console.log("Backend server is running!");
-    });
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URL)
+.then(() => console.log("Connected to MongoDB"))
+.catch((err) => console.log("MongoDB connection error:", err));
+
+// Dynamic CORS Configuration (Localhost + All Vercel Deployments)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman, curl, mobile apps)
+      if (!origin) return callback(null, true);
+      
+      // Allow specific local origins or any vercel.app deployment preview/production
+      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS policy violation: " + origin));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization"
+    ]
   })
-  .catch((error) => {
-    console.error("Database connection failed:", error.message);
-  });
+);
 
-  app.use("/images", express.static(path.join(__dirname, "public/images")));
-
-// middleware 
-app.use(cors({
-  origin: "https://social-media-app-frontend-owa11ge2w-azka-azeems-projects.vercel.app",
-}));
+// Middleware
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan("common"));
 
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("cloudinary").v2;
+// Static files for images
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
-  api_key: process.env.CLOUDINARY_API_KEY.trim(),
-  api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
-  timeout: 600000 // 10 minutes timeout for large video uploads
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "social-media-app",
-    resource_type: "auto",
+// File Upload Storage (Multer)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.name || file.originalname);
   },
 });
 
-const upload = multer({ storage });
-app.post("/api/upload" , upload.single("file"), (req, res) => {
+const upload = multer({ storage: storage });
+app.post("/api/upload", upload.single("file"), (req, res) => {
   try {
-    return res.status(200).json({ url: req.file.path });
+    return res.status(200).json("File uploaded successfully.");
   } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
+    console.error(err);
+    return res.status(500).json(err);
   }
 });
 
-app.use("/api/users", userRoute);
+// Routes
 app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 
+// Root Route
+app.get("/", (req, res) => {
+  res.send("Backend server is running successfully!");
+});
 
-// app.listen(8800 , () => {                 
-//     console.log("Backend server is running!");
-// }) 
+const PORT = process.env.PORT || 8800;
+app.listen(PORT, () => {
+  console.log(`Backend server is running on port ${PORT}`);
+});
+
+module.exports = app;
