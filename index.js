@@ -107,7 +107,59 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 8800;
-app.listen(PORT, () => {
+
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+let onlineUsers = [];
+
+const addNewUser = (username, socketId) => {
+  !onlineUsers.some((user) => user.username === username) &&
+    onlineUsers.push({ username, socketId });
+};
+
+const removeUser = (socketId) => {
+  onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
+};
+
+const getUser = (username) => {
+  return onlineUsers.find((user) => user.username === username);
+};
+
+io.on("connection", (socket) => {
+  // console.log("a user connected");
+  
+  socket.on("newUser", (username) => {
+    addNewUser(username, socket.id);
+  });
+
+  socket.on("sendNotification", ({ senderName, senderProfilePicture, receiverName, type, postId }) => {
+    const receiver = getUser(receiverName);
+    if(receiver) {
+      io.to(receiver.socketId).emit("getNotification", {
+        senderName,
+        senderProfilePicture,
+        type,
+        postId,
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    // console.log("user disconnected");
+    removeUser(socket.id);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Backend server is running on port ${PORT}`);
 });
 
