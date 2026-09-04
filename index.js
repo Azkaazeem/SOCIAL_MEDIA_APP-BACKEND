@@ -18,6 +18,7 @@ const multer = require("multer");
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
+const aiRoute = require("./routes/ai");
 
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URL || process.env.MONGO_URI;
@@ -100,6 +101,7 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
+app.use("/api/ai", aiRoute);
 
 // Root Route
 app.get("/", (req, res) => {

@@ -4,6 +4,9 @@ const User = require("../models/User");
 
 // CREATE POST
 router.post("/" , async (req, res) => {
+    if (!req.body.userId) {
+        return res.status(401).json({ error: "Authentication required to create a post" });
+    }
     const newPost = await new Post(req.body);
     try {
         const savedPost = await newPost.save();
@@ -45,6 +48,9 @@ router.delete("/:id" , async (req, res) => {
 
 // LIKE / UNLIKE POST
 router.put("/:id/like" , async (req, res) => {
+    if (!req.body.userId) {
+        return res.status(401).json({ error: "Authentication required to like a post" });
+    }
     try {
         const post = await Post.findById(req.params.id);
         if (!post.likes.includes(req.body.userId)) {
